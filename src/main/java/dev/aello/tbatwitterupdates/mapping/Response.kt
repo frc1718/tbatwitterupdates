@@ -13,5 +13,5 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
         JsonSubTypes.Type(value = MatchScoreResponse::class, name = "match_score")
 )
 abstract class Response {
-    val message_type: String = ""
+    val messageType: String = ""
 }
