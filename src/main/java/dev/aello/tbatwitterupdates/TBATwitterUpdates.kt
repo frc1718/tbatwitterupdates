@@ -1,7 +1,7 @@
 package dev.aello.tbatwitterupdates
 
-import dev.aello.tbatwitterupdates.webhooks.TBAWebhook
+import org.apache.log4j.BasicConfigurator
 
 fun main() {
-    TBAWebhook(3141, "frc1718").start()
+    BasicConfigurator.configure()
 }
