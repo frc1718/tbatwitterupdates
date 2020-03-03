@@ -25,7 +25,7 @@ class TBAWebhook(port: Int, private val team: String) {
         routing {
             post("/") {
                 val statusCode = when (val response = call.receive<Response>()) {
-                    is PingResponse -> handlePingRequest(response)
+                    is PingResponse -> handlePingRequest()
                     is MatchScoreResponse -> handleMatchScoreRequest(response)
                     else -> HttpStatusCode.BadRequest
                 }
@@ -47,7 +47,7 @@ class TBAWebhook(port: Int, private val team: String) {
         server.start(wait = true)
     }
 
-    private fun handlePingRequest(response: PingResponse): HttpStatusCode {
+    private fun handlePingRequest(): HttpStatusCode {
         return HttpStatusCode.OK
     }
 
