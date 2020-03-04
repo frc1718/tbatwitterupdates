@@ -10,7 +10,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
         defaultImpl = Void::class)
 @JsonSubTypes(
         JsonSubTypes.Type(value = PingResponse::class, name = "ping"),
-        JsonSubTypes.Type(value = MatchScoreResponse::class, name = "match_score")
+        JsonSubTypes.Type(value = MatchScoreResponse::class, name = "match_score"),
+        JsonSubTypes.Type(value = VerificationResponse::class, name = "verification")
 )
 abstract class Response {
     val messageType: String = ""

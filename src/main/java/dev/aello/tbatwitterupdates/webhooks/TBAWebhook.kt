@@ -6,6 +6,7 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import dev.aello.tbatwitterupdates.mapping.MatchScoreResponse
 import dev.aello.tbatwitterupdates.mapping.PingResponse
 import dev.aello.tbatwitterupdates.mapping.Response
+import dev.aello.tbatwitterupdates.mapping.VerificationResponse
 import dev.aello.twitter.Twitter
 import dev.aello.twitter.utils.TwitterCredentials
 import io.ktor.application.call
@@ -19,14 +20,17 @@ import io.ktor.routing.post
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import mu.KotlinLogging
 
 class TBAWebhook(port: Int, private val team: String) {
+    private val logger = KotlinLogging.logger(this::class.java.simpleName)
     private val server = embeddedServer(Netty, port = port) {
         routing {
             post("/") {
                 val statusCode = when (val response = call.receive<Response>()) {
                     is PingResponse -> handlePingRequest()
                     is MatchScoreResponse -> handleMatchScoreRequest(response)
+                    is VerificationResponse -> handleVerificationRequest(response)
                     else -> HttpStatusCode.BadRequest
                 }
 
@@ -48,6 +52,11 @@ class TBAWebhook(port: Int, private val team: String) {
     }
 
     private fun handlePingRequest(): HttpStatusCode {
+        return HttpStatusCode.OK
+    }
+
+    private fun handleVerificationRequest(response: VerificationResponse): HttpStatusCode {
+        logger.info { "Verification key: " + response.messageData.verificationKey }
         return HttpStatusCode.OK
     }
 
