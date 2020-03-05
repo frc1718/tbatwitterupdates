@@ -20,7 +20,15 @@ consumerApiKeySecret=API_KEY_SECRET
 `accessToken` - Your Twitter access token (more info in the Twitter setup section)  
 `accessTokenSecret` - Your Twitter access token secret  (more info in the Twitter setup section)  
 `consumerApiKey` - Your Twitter consumer API key (more info in the Twitter setup section)   
-`consumerApiKeySecret` - Your Twitter consumer API key secret (more info in the Twitter setup section) 
+`consumerApiKeySecret` - Your Twitter consumer API key secret (more info in the Twitter setup section)
+### Twitter Setup
+In order to be able to send tweets programmatically through Twitter, you must setup a [Twitter Developer Account](https://developer.twitter.com/en/apply-for-access.html).  
+Be sure to setup an [app](https://developer.twitter.com/en/apps) and the Account Activity API dev [environment](https://developer.twitter.com/en/account/environments).  
+
+To get the various keys and tokens, go to the [apps](https://developer.twitter.com/en/apps) menu, "Details" -> "Keys and Tokens"
+### TBA Setup
+You need to create a webhook in order for TBA Twitter Updates to receive real-time match information, you can set one up from your [TBA Account](https://www.thebluealliance.com/account).  
+You must also add a team in [myTBA](https://www.thebluealliance.com/account/mytba#my-teams).
 ## Credits
 Made by Sandro Petrovski - [Team 1718](http://fightingpi.org/) The Fighting Pi  
 Match data obtained via [The Blue Alliance](https://www.thebluealliance.com/)
