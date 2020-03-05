@@ -1,7 +1,7 @@
 # TBA Twitter Updates
 Automatically sends Twitter status updates after a match result is posted.
 ## Usage
-## Configuration
+### Configuration
 TBATwitterUpdates uses a fairly straight-forward Java properties file to handle configuration values.
 
 When running the program for the first time, a configuration file will be generated; the location of which will be printed to the terminal.  
