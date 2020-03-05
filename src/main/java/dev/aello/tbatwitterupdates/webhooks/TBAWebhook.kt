@@ -3,6 +3,7 @@ package dev.aello.tbatwitterupdates.webhooks
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import dev.aello.tbatwitterupdates.components.Config
 import dev.aello.tbatwitterupdates.mapping.MatchScoreResponse
 import dev.aello.tbatwitterupdates.mapping.PingResponse
 import dev.aello.tbatwitterupdates.mapping.Response
@@ -22,13 +23,13 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import mu.KotlinLogging
 
-class TBAWebhook(port: Int, private val team: String) {
+class TBAWebhook(port: Int, private val team: String, private val config: Config) {
     private val logger = KotlinLogging.logger(this::class.java.simpleName)
     private val server = embeddedServer(Netty, port = port) {
         routing {
             post("/") {
                 val statusCode = when (val response = call.receive<Response>()) {
-                    is PingResponse -> handlePingRequest()
+                    is PingResponse -> handlePingRequest(response)
                     is MatchScoreResponse -> handleMatchScoreRequest(response)
                     is VerificationResponse -> handleVerificationRequest(response)
                     else -> HttpStatusCode.BadRequest
@@ -51,7 +52,8 @@ class TBAWebhook(port: Int, private val team: String) {
         server.start(wait = true)
     }
 
-    private fun handlePingRequest(): HttpStatusCode {
+    private fun handlePingRequest(response: PingResponse): HttpStatusCode {
+        logger.info { "Ping received! Message: " + response.messageData.desc}
         return HttpStatusCode.OK
     }
 
@@ -88,12 +90,12 @@ class TBAWebhook(port: Int, private val team: String) {
                 "Score: $score - $opposingAllianceScore\n" +
                 "Alliance: $teamAlliance"
 
-        val creds = TwitterCredentials("accessToken",
-                "accessTokenSecret",
-                "consumerApiKey",
-                "consumerApiKeySecret")
+        val credentials = TwitterCredentials(config.properties["accessToken"] as String,
+                config.properties["accessTokenSecret"] as String,
+                config.properties["consumerApiKey"] as String,
+                config.properties["consumerApiKeySecret"] as String)
 
-        Twitter(creds).updateStatus(tweet)
+        Twitter(credentials).updateStatus(tweet)
 
         return HttpStatusCode.OK
     }

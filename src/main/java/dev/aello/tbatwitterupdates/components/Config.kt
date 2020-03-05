@@ -11,11 +11,16 @@ class Config(private val config: File) {
     }
 
     private fun loadConfigFile() {
-        if (!config.exists()) {
+        properties.load(config.inputStream())
+
+        if (!properties.verifyContents("team",
+                        "port",
+                        "accessToken",
+                        "accessTokenSecret",
+                        "consumerApiKey",
+                        "consumerApiKeySecret")) {
             generateConfigFile()
         }
-
-        properties.load(config.inputStream())
     }
 
     private fun generateConfigFile() {
@@ -29,6 +34,16 @@ class Config(private val config: File) {
         ))
 
         properties.store(config.outputStream(), null)
+        properties.load(config.inputStream())
+    }
+
+    private fun Properties.verifyContents(vararg list: String): Boolean {
+        list.forEach {
+            if (this[it] == null) {
+                return false
+            }
+        }
+        return true
     }
 
     private fun Properties.setProperties(map: Map<String, String>) {
