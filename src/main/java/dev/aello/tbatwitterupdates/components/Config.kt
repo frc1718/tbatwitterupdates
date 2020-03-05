@@ -33,7 +33,7 @@ class Config(private val config: File) {
                 "consumerApiKeySecret" to "API_KEY_SECRET"
         ))
 
-        properties.store(config.outputStream(), null)
+        properties.store(config.outputStream(), "TBATwitterUpdates Configuration")
         properties.load(config.inputStream())
     }
 
