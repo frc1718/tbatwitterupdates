@@ -15,19 +15,28 @@ import io.ktor.application.install
 import io.ktor.features.ContentNegotiation
 import io.ktor.http.HttpStatusCode
 import io.ktor.jackson.jackson
+import io.ktor.request.header
 import io.ktor.request.receive
+import io.ktor.request.receiveText
 import io.ktor.response.respond
 import io.ktor.routing.post
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import mu.KotlinLogging
+import org.apache.commons.codec.digest.DigestUtils
 
 class TBAWebhook(port: Int, private val team: String, private val config: Config) {
     private val logger = KotlinLogging.logger(this::class.java.simpleName)
     private val server = embeddedServer(Netty, port = port) {
         routing {
             post("/") {
+                val checksumHeader = call.request.header("X-TBA-Checksum").toString()
+                if (!verifyIntegrity(checksumHeader, call.receiveText())) {
+                    call.respond(HttpStatusCode.BadRequest)
+                    return@post
+                }
+
                 val statusCode = when (val response = call.receive<Response>()) {
                     is PingResponse -> handlePingRequest(response)
                     is MatchScoreResponse -> handleMatchScoreRequest(response)
@@ -52,8 +61,15 @@ class TBAWebhook(port: Int, private val team: String, private val config: Config
         server.start(wait = true)
     }
 
+    private fun verifyIntegrity(checksumHeader: String, requestBody: String): Boolean {
+        val secret = config.properties["secret"] as String
+        val checksum = DigestUtils.sha1Hex(secret + requestBody).toLowerCase()
+
+        return checksum == checksumHeader
+    }
+
     private fun handlePingRequest(response: PingResponse): HttpStatusCode {
-        logger.info { "Ping received! Message: " + response.messageData.desc}
+        logger.info { "Ping received! Message: " + response.messageData.desc }
         return HttpStatusCode.OK
     }
 
