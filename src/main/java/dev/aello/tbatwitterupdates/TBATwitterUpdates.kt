@@ -5,6 +5,7 @@ import dev.aello.tbatwitterupdates.webhooks.TBAWebhook
 import mu.KotlinLogging
 import java.io.File
 
+@ExperimentalStdlibApi
 fun main() {
     val logger = KotlinLogging.logger("TBATwitterUpdates")
     val configFile: File =

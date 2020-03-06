@@ -15,28 +15,55 @@ import io.ktor.application.install
 import io.ktor.features.ContentNegotiation
 import io.ktor.http.HttpStatusCode
 import io.ktor.jackson.jackson
+import io.ktor.request.ApplicationReceivePipeline
+import io.ktor.request.ApplicationReceiveRequest
 import io.ktor.request.header
 import io.ktor.request.receive
-import io.ktor.request.receiveText
 import io.ktor.response.respond
 import io.ktor.routing.post
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.toByteArray
+import io.ktor.utils.io.ByteReadChannel
 import mu.KotlinLogging
 import org.apache.commons.codec.digest.DigestUtils
 
 class TBAWebhook(port: Int, private val team: String, private val config: Config) {
     private val logger = KotlinLogging.logger(this::class.java.simpleName)
+
+    @KtorExperimentalAPI
+    @ExperimentalStdlibApi
     private val server = embeddedServer(Netty, port = port) {
         routing {
-            post("/") {
+            receivePipeline.intercept(ApplicationReceivePipeline.Transform) {
+                val value = it.value
+
+                if (value !is ByteReadChannel) return@intercept
+                if (it.type == ByteReadChannel::class) return@intercept
+
+                val bytes = value.toByteArray()
+                val body = bytes.decodeToString()
+
                 val checksumHeader = call.request.header("X-TBA-Checksum").toString()
-                if (!verifyIntegrity(checksumHeader, call.receiveText())) {
+                if (!verifyIntegrity(checksumHeader, body)) {
                     call.respond(HttpStatusCode.BadRequest)
-                    return@post
+                    return@intercept
                 }
 
+                proceedWith(ApplicationReceiveRequest(it.typeInfo, ByteReadChannel(bytes)))
+            }
+
+            install(ContentNegotiation) {
+                jackson {
+                    propertyNamingStrategy = PropertyNamingStrategy.SNAKE_CASE
+                    configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                    registerKotlinModule()
+                }
+            }
+
+            post("/") {
                 val statusCode = when (val response = call.receive<Response>()) {
                     is PingResponse -> handlePingRequest(response)
                     is MatchScoreResponse -> handleMatchScoreRequest(response)
@@ -47,16 +74,10 @@ class TBAWebhook(port: Int, private val team: String, private val config: Config
                 call.respond(statusCode)
             }
         }
-
-        install(ContentNegotiation) {
-            jackson {
-                propertyNamingStrategy = PropertyNamingStrategy.SNAKE_CASE
-                configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                registerKotlinModule()
-            }
-        }
     }
 
+    @KtorExperimentalAPI
+    @ExperimentalStdlibApi
     fun start() {
         server.start(wait = true)
     }
@@ -110,6 +131,7 @@ class TBAWebhook(port: Int, private val team: String, private val config: Config
                 config["consumerApiKeySecret"])
 
         Twitter(credentials).updateStatus(tweet)
+        logger.info { "Received match score request! Tweet sent." }
 
         return HttpStatusCode.OK
     }
