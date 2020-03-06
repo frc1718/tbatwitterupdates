@@ -29,7 +29,8 @@ class Config(private val config: File) {
                         "accessToken",
                         "accessTokenSecret",
                         "consumerApiKey",
-                        "consumerApiKeySecret")) {
+                        "consumerApiKeySecret",
+                        "secret")) {
             generateConfigFile()
         }
     }
@@ -41,7 +42,8 @@ class Config(private val config: File) {
                 "accessToken" to "TOKEN",
                 "accessTokenSecret" to "TOKEN_SECRET",
                 "consumerApiKey" to "API_KEY",
-                "consumerApiKeySecret" to "API_KEY_SECRET"
+                "consumerApiKeySecret" to "API_KEY_SECRET",
+                "secret" to "TBA_SECRET"
         ))
 
         properties.store(config.outputStream(), "TBATwitterUpdates Configuration")
