@@ -10,6 +10,10 @@ class Config(private val config: File) {
         loadConfigFile()
     }
 
+    fun save() {
+        properties.store(config.outputStream(), "TBATwitterUpdates Configuration")
+    }
+
     private fun loadConfigFile() {
         properties.load(config.inputStream())
 

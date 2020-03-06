@@ -75,6 +75,8 @@ class TBAWebhook(port: Int, private val team: String, private val config: Config
 
     private fun handleVerificationRequest(response: VerificationResponse): HttpStatusCode {
         logger.info { "Verification key: " + response.messageData.verificationKey }
+        config.properties["secret"] = response.messageData.verificationKey
+        config.save()
         return HttpStatusCode.OK
     }
 
