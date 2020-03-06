@@ -4,8 +4,7 @@ Automatically sends Twitter status updates after a match result is posted.
 ### Configuration
 TBATwitterUpdates uses a fairly straight-forward Java properties file to handle configuration values.
 
-When running the program for the first time, a configuration file will be generated; the location of which will be printed to the terminal.  
-Edit the file and update all of the values. When entering the team name, ensure that you add the "frc" prefix (e.g. frc1718).  
+When running the program for the first time, a configuration file will be generated; edit it with your team number and tokens/keys.  
 An example configuration complete with value explanations can be found below:  
 ```properties
 team=frc1718
@@ -15,17 +14,17 @@ accessTokenSecret=TOKEN_SECRET
 consumerApiKey=API_KEY
 consumerApiKeySecret=API_KEY_SECRET
 ```
-`team` - The team whose events you want to listen for (be sure to prefix with "frc")  
+`team` - The team whose events you want to listen for (be sure to include the "frc" prefix)  
 `port` - The port that the TBA Webhook listens on (more info in the webhook setup section)  
 `accessToken` - Your Twitter access token (more info in the Twitter setup section)  
 `accessTokenSecret` - Your Twitter access token secret  (more info in the Twitter setup section)  
 `consumerApiKey` - Your Twitter consumer API key (more info in the Twitter setup section)   
 `consumerApiKeySecret` - Your Twitter consumer API key secret (more info in the Twitter setup section)
 ### Twitter Setup
-In order to be able to send tweets programmatically through Twitter, you must setup a [Twitter Developer Account](https://developer.twitter.com/en/apply-for-access.html).  
-Be sure to setup an [app](https://developer.twitter.com/en/apps) and the Account Activity API dev [environment](https://developer.twitter.com/en/account/environments).  
+In order to be able to send tweets programmatically, you must setup a [Twitter Developer Account](https://developer.twitter.com/en/apply-for-access.html).  
+Once you've done that, setup an [app](https://developer.twitter.com/en/apps) and the Account Activity API [dev environment](https://developer.twitter.com/en/account/environments).  
 
-To get the various keys and tokens, go to the [apps](https://developer.twitter.com/en/apps) menu, "Details" -> "Keys and Tokens"
+To get the various keys and tokens, go to the [apps](https://developer.twitter.com/en/apps) menu, "Details" -> "Keys and Tokens".
 ### TBA Setup
 You need to create a webhook in order for TBA Twitter Updates to receive real-time match information, you can set one up from your [TBA Account](https://www.thebluealliance.com/account).  
 You must also add a team in [myTBA](https://www.thebluealliance.com/account/mytba#my-teams).
