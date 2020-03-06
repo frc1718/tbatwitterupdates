@@ -12,7 +12,9 @@ import dev.aello.twitter.Twitter
 import dev.aello.twitter.utils.TwitterCredentials
 import io.ktor.application.call
 import io.ktor.application.install
+import io.ktor.features.BadRequestException
 import io.ktor.features.ContentNegotiation
+import io.ktor.features.StatusPages
 import io.ktor.http.HttpStatusCode
 import io.ktor.jackson.jackson
 import io.ktor.request.ApplicationReceivePipeline
@@ -37,6 +39,8 @@ class TBAWebhook(port: Int, private val team: String, private val config: Config
     @ExperimentalStdlibApi
     private val server = embeddedServer(Netty, port = port) {
         routing {
+            install(StatusPages) { exception<Exception> {} }
+
             receivePipeline.intercept(ApplicationReceivePipeline.Transform) {
                 val value = it.value
 
@@ -46,10 +50,17 @@ class TBAWebhook(port: Int, private val team: String, private val config: Config
                 val bytes = value.toByteArray()
                 val body = bytes.decodeToString()
 
-                val checksumHeader = call.request.header("X-TBA-Checksum").toString()
-                if (!verifyIntegrity(checksumHeader, body)) {
+                val checksumHeader = call.request.header("X-TBA-Checksum")
+                if (checksumHeader == null) {
                     call.respond(HttpStatusCode.BadRequest)
-                    return@intercept
+                    logger.error { "No checksum header!" }
+                    throw BadRequestException("No checksum header!")
+                }
+
+                if (!verifyIntegrity(checksumHeader.toString(), body)) {
+                    call.respond(HttpStatusCode.BadRequest)
+                    logger.error { "Request integrity could not be verified!" }
+                    throw BadRequestException("Request integrity cannot be verified!")
                 }
 
                 proceedWith(ApplicationReceiveRequest(it.typeInfo, ByteReadChannel(bytes)))
@@ -109,7 +120,7 @@ class TBAWebhook(port: Int, private val team: String, private val config: Config
         val opposingAllianceScore: Int
         val score: Int
 
-        if (teamAlliance == "blue") {
+        if (teamAlliance == "Blue") {
             opposingAllianceScore = match.alliances.red.score
             score = match.alliances.blue.score
         } else {
