@@ -62,9 +62,7 @@ class TBAWebhook(port: Int, private val team: String, private val config: Config
     }
 
     private fun verifyIntegrity(checksumHeader: String, requestBody: String): Boolean {
-        val secret = config.properties["secret"] as String
-        val checksum = DigestUtils.sha1Hex(secret + requestBody).toLowerCase()
-
+        val checksum = DigestUtils.sha1Hex(config["secret"] + requestBody).toLowerCase()
         return checksum == checksumHeader
     }
 
@@ -75,8 +73,7 @@ class TBAWebhook(port: Int, private val team: String, private val config: Config
 
     private fun handleVerificationRequest(response: VerificationResponse): HttpStatusCode {
         logger.info { "Verification key: " + response.messageData.verificationKey }
-        config.properties["secret"] = response.messageData.verificationKey
-        config.save()
+        config["secret"] = response.messageData.verificationKey
         return HttpStatusCode.OK
     }
 
@@ -108,10 +105,10 @@ class TBAWebhook(port: Int, private val team: String, private val config: Config
                 "Score: $score - $opposingAllianceScore\n" +
                 "Alliance: $teamAlliance"
 
-        val credentials = TwitterCredentials(config.properties["accessToken"] as String,
-                config.properties["accessTokenSecret"] as String,
-                config.properties["consumerApiKey"] as String,
-                config.properties["consumerApiKeySecret"] as String)
+        val credentials = TwitterCredentials(config["accessToken"],
+                config["accessTokenSecret"],
+                config["consumerApiKey"],
+                config["consumerApiKeySecret"])
 
         Twitter(credentials).updateStatus(tweet)
 

@@ -21,7 +21,7 @@ fun main() {
     }
 
     val config = Config(configFile)
-    if (config.properties["accessToken"] == "TOKEN") {
+    if (config["accessToken"] == "TOKEN") {
         logger.error {
             "A new configuration file has been generated at " + configFile.absolutePath + "! " +
                     "Please update its values and run again."
@@ -29,5 +29,6 @@ fun main() {
         return
     }
 
-    TBAWebhook(config.properties["port"].toString().toInt(), config.properties["team"] as String, config).start()
+    // TODO Possibly just supply the "config" variable?
+    TBAWebhook(config["port"].toInt(), config["team"], config).start()
 }
