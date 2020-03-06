@@ -31,10 +31,12 @@ class TBAWebhook(port: Int, private val team: String, private val config: Config
     private val server = embeddedServer(Netty, port = port) {
         routing {
             post("/") {
-                val checksumHeader = call.request.header("X-TBA-Checksum").toString()
-                if (!verifyIntegrity(checksumHeader, call.receiveText())) {
-                    call.respond(HttpStatusCode.BadRequest)
-                    return@post
+                if (config["secret"].isNotEmpty()) {
+                    val checksumHeader = call.request.header("X-TBA-Checksum").toString()
+                    if (!verifyIntegrity(checksumHeader, call.receiveText())) {
+                        call.respond(HttpStatusCode.BadRequest)
+                        return@post
+                    }
                 }
 
                 val statusCode = when (val response = call.receive<Response>()) {
@@ -73,7 +75,6 @@ class TBAWebhook(port: Int, private val team: String, private val config: Config
 
     private fun handleVerificationRequest(response: VerificationResponse): HttpStatusCode {
         logger.info { "Verification key: " + response.messageData.verificationKey }
-        config["secret"] = response.messageData.verificationKey
         return HttpStatusCode.OK
     }
 
