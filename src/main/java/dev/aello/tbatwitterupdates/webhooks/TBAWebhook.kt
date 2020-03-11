@@ -42,6 +42,7 @@ class TBAWebhook(port: Int, private val team: String, private val config: Config
             install(StatusPages) { exception<Exception> {} }
 
             receivePipeline.intercept(ApplicationReceivePipeline.Transform) {
+                logger.info { "Received request!" }
                 val value = it.value
 
                 if (value !is ByteReadChannel) return@intercept
