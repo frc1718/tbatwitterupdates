@@ -2,9 +2,11 @@ package dev.aello.tbatwitterupdates
 
 import dev.aello.tbatwitterupdates.components.Config
 import dev.aello.tbatwitterupdates.webhooks.TBAWebhook
+import io.ktor.util.KtorExperimentalAPI
 import mu.KotlinLogging
 import java.io.File
 
+@KtorExperimentalAPI
 @ExperimentalStdlibApi
 fun main() {
     val logger = KotlinLogging.logger("TBATwitterUpdates")
