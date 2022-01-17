@@ -20,7 +20,7 @@ secret=SECRET
 `accessToken` - Your Twitter access token (more info in the Twitter setup section)  
 `accessTokenSecret` - Your Twitter access token secret  (more info in the Twitter setup section)  
 `consumerApiKey` - Your Twitter consumer API key (more info in the Twitter setup section)   
-`consumerApiKeySecret` - Your Twitter consumer API key secret (more info in the Twitter setup section)
+`consumerApiKeySecret` - Your Twitter consumer API key secret (more info in the Twitter setup section)  
 `secret` - TBA Webhook secret (more info in the webhook setup section)
 ### Twitter Setup
 In order to be able to send tweets programmatically, you must setup a [Twitter Developer Account](https://developer.twitter.com/en/apply-for-access.html).  
