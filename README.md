@@ -31,7 +31,11 @@ To get the various keys and tokens, go to the [apps](https://developer.twitter.c
 You need to create a webhook in order for TBA Twitter Updates to receive real-time match information, you can set one up from your [TBA Account](https://www.thebluealliance.com/account).  
 You must also add a team in [myTBA](https://www.thebluealliance.com/account/mytba#my-teams).  
 
-After creating a webhook, there will be a "Secret" listed under the ID column, set the `secret` value in the configuration file to match this.
+After creating a webhook, there will be a "Secret" listed under the ID column.
+
+Leave the `secret` setting blank initially; once the webhook receives the verification code from TBA's server (and you've verified), you may set `secret`
+to the aforementioned value.
+
 ## Credits
-Made by Sandro Petrovski - [Team 1718](http://fightingpi.org/) The Fighting Pi  
+Developed by Sandro Petrovski at [Team 1718: The Fighting Pi](http://fightingpi.org/)  
 Match data obtained via [The Blue Alliance](https://www.thebluealliance.com/)
