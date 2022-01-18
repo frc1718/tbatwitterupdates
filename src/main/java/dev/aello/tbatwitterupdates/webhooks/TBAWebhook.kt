@@ -22,8 +22,7 @@ import io.ktor.request.ApplicationReceiveRequest
 import io.ktor.request.header
 import io.ktor.request.receive
 import io.ktor.response.respond
-import io.ktor.routing.post
-import io.ktor.routing.routing
+import io.ktor.routing.*
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.util.KtorExperimentalAPI
@@ -58,7 +57,7 @@ class TBAWebhook(port: Int, private val team: String, private val config: Config
                     throw BadRequestException("No checksum header!")
                 }
 
-                if (!verifyIntegrity(checksumHeader.toString(), body)) {
+                if (config["secret"] != "" && !verifyIntegrity(checksumHeader.toString(), body)) {
                     call.respond(HttpStatusCode.BadRequest)
                     logger.error { "Request integrity could not be verified!" }
                     throw BadRequestException("Request integrity cannot be verified!")
@@ -117,25 +116,30 @@ class TBAWebhook(port: Int, private val team: String, private val config: Config
 
     private fun handleMatchScoreRequest(response: MatchScoreResponse): HttpStatusCode {
         val match = response.messageData.match
-        val teamAlliance = if (team in match.alliances.blue.teams) "Blue" else "Red"
+        val teamAlliance = if (team in match.alliances.blue.teams) "blue" else "red"
         val opposingAllianceScore: Int
+        val allianceMembers: List<String>
         val score: Int
 
-        if (teamAlliance == "Blue") {
+        if (teamAlliance == "blue") {
             opposingAllianceScore = match.alliances.red.score
             score = match.alliances.blue.score
+            allianceMembers = match.alliances.blue.teams
         } else {
             opposingAllianceScore = match.alliances.blue.score
             score = match.alliances.red.score
+            allianceMembers = match.alliances.red.teams
         }
 
         val result = if (score > opposingAllianceScore) "Win" else "Loss"
         val compLevel = compLevelMap[match.compLevel]
 
-        val tweet = "- $compLevel ${match.matchNumber} -\n" +
+        val tweet = "- $compLevel #${match.matchNumber} -\n" +
                 "Result: $result\n" +
-                "Score: $score - $opposingAllianceScore\n" +
-                "Alliance: $teamAlliance"
+                "Score: $score - $opposingAllianceScore\n\n" +
+                "Team ${config["team"].replace("frc", "")} played on the $teamAlliance alliance w/ teams ${
+                    allianceMembers.filter { it != config["team"] }.joinToString(" and ") { it.replace("frc", "") }
+                }."
 
         val credentials = TwitterCredentials(config["accessToken"],
                 config["accessTokenSecret"],
